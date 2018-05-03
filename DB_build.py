@@ -1,6 +1,5 @@
-### An exercise: Markov Chain function in Python ###
-#
-# First import any necessarily modules. (Kind of like packages in R)
+### Instructions for building sqlite DB using PeMS Data ###
+# 
 import numpy as np
 import pandas as pd
 import csv, sqlite3
@@ -21,6 +20,9 @@ print(res.fetchall()) # example of how to get the first table name (str)
 # 5MIN
 # 52 COLUMNS, but only 11 are labeled
 beginning_names = ["timestamp", "station", "district", "freeway", "direction", "length", "numSamples", "percentObs", "flow", "occupancy", "speed"]
+# this file is a concatenation of all the downloaded files for April 2018 (02-27)
+# use this bash command:
+# cat d04_text_station_5min_2018_04_*.txt.gz > all_d04_text_station_5min_2018_04.txt.gz
 all_five_min = pd.read_csv("./data/all_d04_text_station_5min_2018_04.txt.gz",compression="gzip",
                            header=None,usecols=range(11),names=beginning_names)
 all_five_min.to_sql("5min", trafficDB, if_exists='fail')
