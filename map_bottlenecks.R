@@ -35,3 +35,4 @@ border_plt  + geom_point(data = bottlenecks, aes(x = Longitude, y = Latitude, co
   ggtitle("Top Bottlenecks by Total Duration (min), 4/2 - 4/27")
 
 
+hist(bottlenecks$Total.Duration..mins., main="Histogram of Bottleneck Durations", xlab = "Total Duration")
