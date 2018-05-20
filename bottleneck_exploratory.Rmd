@@ -1,0 +1,41 @@
+---
+title: "Exploratory Analysis of Candidate Features for Bottleneck Identification"
+output: html_notebook
+---
+
+The 5-Minute Station Data available on the [CalTrans PeMS Data Clearinghouse](http://pems.dot.ca.gov/?dnode=Clearinghouse&type=station_5min&district_id=4&submit=Submit) has the following field specifications:
+
+* Timestamp
+* Unique Station Identifier
+* District #
+* Freeway
+* Direction of Travel (N | S | E | W)
+* Lane Type
+* Length (of segment covered by station)
+* Samples received from all lanes during this period
+* Total Flow (Veh/5min)
+* Avg Occupancy (%)
+* Avg Speed (Mph)
+
+PeMS uses the algorithm described in, ["Systematic Identification of Freeway Bottlenecks"](https://doi.org/10.3141/1867-06) to identify bottlenecks on California freeways. It relies on the calculation and thresholding of speed differentials between one Vehicle Detector Station (VDS) to another.
+
+In this document, we will explore the 5-Minute Station Data and evaluate whether any other signals captured by VDS systems can be used to identify bottlenecks to an equal degree. The purpose of this analysis is to further categorize the bottlenecks (for example, distinguishing between recurrent and non-recurrent events) so that traffic solutions can be made with higher quality analysis.
+
+## Part I: Innate Station Qualities (Metadata)
+Recurrent bottlenecks may simply be caused by a highway region that suffers from poor design. 
+
+## Part II: The Speed Metric
+```{r}
+```
+
+## Part III: The Flow Metric
+```{r}
+hist(df_0402$flow,main = "Distribution of Traffic Flow Measurements on I80 for 04/02/2018")
+```
+
+## Part IV: Time Dependence
+Mathematically, this feature is the most cumbersome to analyze.
+
+```{r}
+```
+
