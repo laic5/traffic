@@ -5,4 +5,4 @@ Syntax highlighted code block
 ```
 ## Header 2
 
-![[https://github.com/laic5/traffic/blob/master/plots/delay2018.gif|alt=delay]]
+![Delay 2018](https://github.com/laic5/traffic/blob/master/plots/delay2018.gif)
