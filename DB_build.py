@@ -43,7 +43,7 @@ bottlenecks.insert(5,"direction",tempCol)
 bottlenecks.to_sql("d04_bottlenecks_april",trafficDB,if_exists='fail')
 
 # PeMS BOTTLENECKS -- WEEKDAYS ONLY, NORMALIZED
-bottle_headers_2 = ["station","name","type","shift","freeway","abs_PM","state_PM","latitude","longitude","days_active","avg_extent(mi)","total_delay(veh-hrs)","avg_duration(mins)"]
+bottle_headers_2 = ["station","name","type","shift","freeway","abs_PM","state_PM","latitude","longitude","days_active","avg_extent(mi)","avg_delay(veh-hrs)","avg_duration(mins)"]
 bottlenecks2 = pd.read_table("./data/d04_top_bottlenecks_weekdays_4_02_4_27_t45_normalized.txt",header=None,skiprows=1,names=bottle_headers_2)
 bottlenecks2["freeway"], bottlenecks2["direction"] = zip(*bottlenecks2["freeway"].str.split("-").tolist())
 tempCol = bottlenecks2["direction"]
