@@ -1,0 +1,171 @@
+---
+output: html_document
+---
+We would like to visually compare differing traffic patterns during extreme weather conditions, so we selected the days of rained from Jan. to Apr. 2018, and the data that been collecting is showing about two weeks of the rained, included the weekday and weekend as well. For example, Jan.18 and Jan.24 were rainy, so we picked the data from Jan.17-29. Therefore, we had weather from Dark Sky API on Jan.17-29, Feb.9-23, Mar.12-24, Apr.9-23. Next we collected the weather data and hourly traffic data of Fremont, and stations at mainline on I880 which are 407219 where at north of Fremont and near the Milpitas, 400249 where at central of Fremont, 400141 where at south of Fremont. 
+
+
+```{r setup, echo=FALSE}
+
+knitr::opts_chunk$set(fig.width=12, fig.height=8) 
+```
+
+```{r, echo=FALSE}
+load("Fremont.RData")
+
+```
+
+```{r, echo=FALSE}
+
+extract_flow = function(df, st) {
+  flow = df[df$station == st,]$flow
+  return (as.matrix(flow))
+}
+
+ordered_stations = c(400141, 400249, 407219)
+em.data = rbind(jan, feb, mar, apr)
+flow.data = sapply(ordered_stations, extract_flow, df=em.data)
+
+plot(flow.data[,1], type='l', col="red", ylab = "flow", xlab = "time", ylim =c(0, 8000), main = "Flow for Fremont in Jan - Apr")
+lines(flow.data[,2], col = "blue")
+lines(flow.data[,3], col = "green")
+legend("topright", as.character(c(ordered_stations[3], ordered_stations[2], ordered_stations[1])), 
+       col=c("red", "blue", "green"), lty=c(1,1,1), bty='n')
+
+```
+
+This one flow image plot for all the flow data from Jan to Apr. From the flow image, we can see there are two red lines of traffic flow goes to zero on the image. It indicate that the lane is closed during that time, therefore, the whole block is closed for a long time. In general, the traffic pattern look similar. 
+
+```{r, echo=FALSE}
+# function to extract date and time (hour)
+get_date = function(vec_timestamp){
+    d = as.numeric(gsub("[0-9]{2}/([0-9]{2})/[0-9]{4}.*", "\\1", vec_timestamp))
+    return(d)
+}
+
+get_hour = function(vec_timestamp){
+    h = as.numeric(gsub(".* ([0-9]{2}):[0-9]{2}:[0-9]{2}", "\\1", vec_timestamp))
+    return(h)
+}
+
+# only subset the stations we cared
+jan3 = subset(jan, jan$station %in% c(400141, 400249, 407219))
+feb3 = subset(feb, feb$station %in% c(400141, 400249, 407219))
+mar3 = subset(mar, mar$station %in% c(400141, 400249, 407219))
+apr3 = subset(apr, apr$station %in% c(400141, 400249, 407219))
+
+# add the day and hour information to the data
+jan3$day = get_date(jan3$timestamp)
+jan3$hour = get_hour(jan3$timestamp)
+
+feb3$day = get_date(feb3$timestamp)
+feb3$hour = get_hour(feb3$timestamp)
+
+mar3$day = get_date(mar3$timestamp)
+mar3$hour = get_hour(mar3$timestamp)
+
+apr3$day = get_date(apr3$timestamp)
+apr3$hour = get_hour(apr3$timestamp)
+
+
+## rainy day
+rain = read.csv("Rain_week.csv")
+
+# create a column to classify rain or not 
+rain$israin = rain$summary %in% c("Light Rain", "Light Rain and Breezy", "Rain", "Heavy Rain and Breezy", "Rain and Breezy")
+
+# split rain by month
+rain_m = split(rain, rain$MONTH)
+rain_m[[2]] = rain_m[[2]][!duplicated(rain_m[[2]]),] # duplication records in Feb
+#lapply(rain_m, function(x) range(x$DAY)) # rain data: day range for each month available
+
+# subset flow information where the rain date is available
+
+jan3 = jan3[jan3$day %in% 17:29,]
+feb3 = feb3[feb3$day %in% 9:23,]
+mar3 = mar3[mar3$day %in% 12:24,]
+apr3 = apr3[apr3$day %in% 9:23,]
+
+# put them in list
+em = list(jan3, feb3, mar3, apr3)
+names(em) = c("jan", "feb", "mar", "apr")
+
+# split it by station 
+em2 = lapply(em, function(x) split(x, x$station))
+
+# check dimension first before merge
+#lapply(em2, function(y) lapply(y, dim))
+#lapply(rain_m, dim)
+
+# add the information of the rain data to the station 
+em3 = em2
+for (i in 1:4){
+    for (j in 1:3){
+        em3[[i]][[j]] = cbind(em2[[i]][[j]], rain_m[[i]])
+    }
+}
+
+# clean dataset: em3
+names(em3)
+names(em3$jan)
+
+# plot the flow for each station
+em4 = lapply(em3, function(x) do.call("rbind", x)) # put them back in the same dataframe in each month 
+
+flow.range = range(sapply(em4, function(x) range(x$flow)))
+day.range = range(sapply(em4, function(x) range(x$day)))
+
+```
+
+```{r, echo=FALSE}
+
+
+## plot them across time
+
+par(mfrow=c(4,3))
+for (i in 1:4){
+    for (j in 1:3){
+        day_mean = tapply(em3[[i]][[j]]$flow, em3[[i]][[j]]$day, mean)
+        with(em3[[i]][[j]], plot(day, flow, cex = 0.5, col="grey", ylim = flow.range, main = paste(names(em3)[i], names(em3[[i]])[j])))
+        with(em3[[i]][[j]], lines(unique(day), day_mean, col="red"))
+        abline(v = em3[[i]][[j]]$day[which(em3[[i]][[j]]$israin)], col="blue", lty=2)
+    }
+}
+
+```
+Figure A: The flow against day. The red line is the average daily flow. The blue line is the day which is raining. 
+
+From Figure A, there are very few rainy day recorded from January to April. It is not surprising in California. On those rainy day, it is shown on the figure with vertical blue line. As we can see, the flow or average flow does not seem to change on those rainy day. The red line on the figure represent the average flow across the day. On the red average line, there are some local minimum across the line. It Is not hard to tell that those local minimum or drop in flow occur in weekend. Besides, on Feburary, the station 400141 does not seem to record any flow. The lane probably close for the day due to construction.  
+
+```{r, echo=FALSE}
+# plot the flow for each station
+
+#par(mar=c(5.1,4.1,4.1,2.1))
+
+
+par(mfrow=c(4,3))
+for (i in 1:4){
+    for (j in 1:3){
+        temp = split(em3[[i]][[j]], em3[[i]][[j]]$day)
+        with(temp[[1]], plot(hour, flow, type = 'l', main = paste(names(em3)[i], names(em3[[i]])[j]), ylim = flow.range, col="grey"))
+        for (k in 2:length(temp)){
+            with(temp[[k]], points(hour, flow, col="grey", cex=0.5))
+#             if (sum(temp[[k]]$israin)>0){
+#                 abline(v = temp[[k]]$hour[which(temp[[k]]$israin)], col="blue")
+#             }
+        }
+        for (k in 2:length(temp)){
+            with(temp[[k]], lines(hour, flow, col="grey"))
+        }
+        hour_mean = tapply(em3[[i]][[j]]$flow, em3[[i]][[j]]$hour, mean)
+        with(em3[[i]][[j]], lines(unique(hour), hour_mean, col="red"))
+    }
+}
+
+```
+Figure B: The flow curves across hours. The red line is the average flow across hour. 
+
+From Figure B, it is a plot of flow against hour. One grey curve represent one day, 24-hours. As we may notice, some lanes may close on certain hour in certain day. The lane may close for those time interval due to construction. The overall patterns look similar across the month but it looks a little bit difference across the station. For instance, we can see the flow slow down usually during 8am to 10am. It is not surprising since those are the time people get to work or school. There are many cars on the road. Therefore, the flow will decrease. The peak of the flow reach around 1pm to 3pm. It suggests that the best time people should travel during a day is around 1pm to 4pm if they want to avoid traffic. 
+
+From the same plot, the mean curve, shown in red, can better summarize the overall trend of flow throughout a day. If we look at those individual curves per day, shown in grey. We actually notice there are two kind of pattern. After looking into the details, we notice that one pattern belongs to weekday and another pattern below to weekend. As we can see, during weekday, there is a local maximum, a little peak, around 8am. Then, the lanes start to have too many cars on lane. The flows start to decrease. However, this situation actually look differently during weekend. During weekend, we did not see the little peak around 8am. 
+
+Over all, we can see the rainy day does not affect the flow that much. Instead, the flow during weekday and weekend are quite different.
