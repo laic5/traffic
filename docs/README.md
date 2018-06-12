@@ -8,3 +8,8 @@ We used publicly available data from [PeMS](http://pems.dot.ca.gov) to extract f
 3. [Effects of intense rain on traffic patterns](https://github.com/laic5/traffic/blob/master/docs/_layouts/rain%20vis.pdf)
 
 In conclusion, we have learned a lot about traffic patterns and bottlenecks in the Bay Area after exploring multiple sides of the PeMS sensor data. The weather and CHP incidents gave us insights on external factors affecting bottlenecks. The cluster analysis showed us how bottlenecks can differ from one another and what’s a typical bottleneck and what’s not. The 5 year analysis gave us an overall view of how traffic has changed in the past 5 years.
+
+## Gallery of interesting visualizations from our report
+![Delays in 2018](https://github.com/laic5/traffic/raw/master/plots/delay2018.gif)
+![Congestion on I280 South](https://github.com/laic5/traffic/raw/master/plots/img1.png)
+![Flow per Year on Highway 101](https://github.com/laic5/traffic/raw/master/plots/img2.png)
